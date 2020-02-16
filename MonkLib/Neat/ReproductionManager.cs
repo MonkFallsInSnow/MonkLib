@@ -18,7 +18,36 @@ namespace MonkLib.Neat
         {
             Genome child = new Genome();
 
+            child.Add(this.SelectConnections(parent1, parent2));
+            child.Add(this.SelectConnections(parent2, parent1));
+
             return child;
+        }
+
+        private List<ConnectionGene> SelectConnections(Genome genome1, Genome genome2)
+        {
+            List<ConnectionGene> connections = new List<ConnectionGene>();
+
+            foreach (KeyValuePair<uint, ConnectionGene> keyValuePair in genome1.Connections)
+            {
+                if (genome2.Connections.ContainsKey(keyValuePair.Key))
+                {
+                    ConnectionGene gene = rand.Next(0, 2) == 0 ?
+                        genome1.Connections[keyValuePair.Key] :
+                        genome2.Connections[keyValuePair.Key];
+
+                    connections.Add(gene);
+                }
+                else
+                {
+                    if (genome1.Fitness >= genome2.Fitness)
+                    {
+                        connections.Add(genome1.Connections[keyValuePair.Key]);
+                    }
+                }
+            }
+
+            return connections;
         }
 
         public void MutateNode(Genome genome)
@@ -93,7 +122,7 @@ namespace MonkLib.Neat
             }
         }
 
-        private void PerturbWeights(Genome genome)
+        public void PerturbWeights(Genome genome)
         {
             foreach (ConnectionGene connection in genome.Connections.Values)
             {
