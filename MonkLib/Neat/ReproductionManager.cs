@@ -16,6 +16,7 @@ namespace MonkLib.Neat
 
         public Genome PerformCrossover(Genome parent1, Genome parent2)
         {
+
             Genome child = new Genome();
 
             child.Add(this.SelectConnections(parent1, parent2));
@@ -126,7 +127,8 @@ namespace MonkLib.Neat
         {
             foreach (ConnectionGene connection in genome.Connections.Values)
             {
-
+                if (rand.NextDouble() <= Constants.PCHANGE_WEIGHT)
+                    connection.Weight += rand.Next(0, 2) == 0 ? rand.NextDouble() : -rand.NextDouble();
             }
 
         }
