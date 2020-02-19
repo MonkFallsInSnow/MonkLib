@@ -10,5 +10,6 @@ namespace MonkLib.Neat
         void MutateNode(Genome genome);
         void MutateConnection(Genome genome);
         void PerturbWeights(Genome genome);
+        bool IsDifferentSpecies(Genome genome1, Genome genome2);
     }
 }

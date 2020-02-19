@@ -130,5 +130,70 @@ namespace MonkLib.Neat
             }
 
         }
+
+        public bool IsDifferentSpecies(Genome genome1, Genome genome2)
+        {
+            int geneCount = genome1.Connections.Count + genome1.Connections.Count;
+            int excessCount = this.GetExcessGenes(genome1, genome2).Count;
+            int disjointCount = this.GetDisjointGenes(genome1, genome2).Count;
+            double averageWeightDifference = this.GetAverageWeightDifference(genome1, genome2);
+
+            double delta = Constants.EXCESS_SCALAR * ((double)excessCount / geneCount) + 
+                Constants.DISJOINT_SCALAR * ((double)disjointCount / geneCount) + 
+                Constants.WEIGHT_SCALAR * averageWeightDifference;
+
+            Console.WriteLine(delta + "\n");
+            return delta < Constants.COMPATIBILITY_THRESHOLD;
+        }
+
+        private List<ConnectionGene> GetDisjointGenes(Genome genome1, Genome genome2)
+        {
+            List<ConnectionGene> disjointGenes = new List<ConnectionGene>();
+
+            uint earliestInnovation = Math.Min(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
+            
+            genome1.Connections
+                .Except(genome2.Connections)
+                .Where(g => g.Key <= earliestInnovation)
+                .ToList()
+                .ForEach(c => disjointGenes.Add(c.Value));
+
+            genome2.Connections
+                .Except(genome1.Connections)
+                .Where(g => g.Key <= earliestInnovation)
+                .ToList()
+                .ForEach(c => disjointGenes.Add(c.Value));
+
+            return disjointGenes;
+        }
+
+        private List<ConnectionGene> GetExcessGenes(Genome genome1, Genome genome2)
+        {
+            List<ConnectionGene> excessGenes = new List<ConnectionGene>();
+
+            uint earliestInnovation = Math.Min(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
+            uint latestInnovation = Math.Max(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
+
+            genome1.Connections
+                .Except(genome2.Connections)
+                .Where(g => g.Key > earliestInnovation && g.Key <= latestInnovation)
+                .ToList()
+                .ForEach(c => excessGenes.Add(c.Value));
+
+            genome2.Connections
+                .Except(genome1.Connections)
+                .Where(g => g.Key > earliestInnovation && g.Key <= latestInnovation)
+                .ToList()
+                .ForEach(c => excessGenes.Add(c.Value));
+
+            return excessGenes;
+        }
+
+        private double GetAverageWeightDifference(Genome genome1, Genome genome2)
+        {
+            double sum = genome1.Connections.Sum(c => c.Value.Weight) + genome2.Connections.Sum(c => c.Value.Weight);
+
+            return sum / (genome1.Connections.Count + genome2.Connections.Count);
+        }
     }
 }
