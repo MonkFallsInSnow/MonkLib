@@ -138,10 +138,11 @@ namespace MonkLib.Neat
             int disjointCount = this.GetDisjointGenes(genome1, genome2).Count;
             double averageWeightDifference = this.GetAverageWeightDifference(genome1, genome2);
 
-            double delta = Constants.EXCESS_SCALAR * (excessCount / geneCount) + 
-                Constants.DISJOINT_SCALAR * (disjointCount / geneCount) + 
+            double delta = Constants.EXCESS_SCALAR * ((double)excessCount / geneCount) + 
+                Constants.DISJOINT_SCALAR * ((double)disjointCount / geneCount) + 
                 Constants.WEIGHT_SCALAR * averageWeightDifference;
 
+            Console.WriteLine(delta + "\n");
             return delta < Constants.COMPATIBILITY_THRESHOLD;
         }
 
@@ -150,9 +151,15 @@ namespace MonkLib.Neat
             List<ConnectionGene> disjointGenes = new List<ConnectionGene>();
 
             uint earliestInnovation = Math.Min(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
-
+            
             genome1.Connections
                 .Except(genome2.Connections)
+                .Where(g => g.Key <= earliestInnovation)
+                .ToList()
+                .ForEach(c => disjointGenes.Add(c.Value));
+
+            genome2.Connections
+                .Except(genome1.Connections)
                 .Where(g => g.Key <= earliestInnovation)
                 .ToList()
                 .ForEach(c => disjointGenes.Add(c.Value));
@@ -169,6 +176,12 @@ namespace MonkLib.Neat
 
             genome1.Connections
                 .Except(genome2.Connections)
+                .Where(g => g.Key > earliestInnovation && g.Key <= latestInnovation)
+                .ToList()
+                .ForEach(c => excessGenes.Add(c.Value));
+
+            genome2.Connections
+                .Except(genome1.Connections)
                 .Where(g => g.Key > earliestInnovation && g.Key <= latestInnovation)
                 .ToList()
                 .ForEach(c => excessGenes.Add(c.Value));
