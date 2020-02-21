@@ -7,7 +7,7 @@ namespace MonkLib.Neat
     interface IPopulationManager
     {
         List<Genome> Population { get; }
-        Dictionary<uint, Genome> Species { get; }
+        Dictionary<int, Genome> Species { get; }
         void InitializePopulation();
     }
 }
