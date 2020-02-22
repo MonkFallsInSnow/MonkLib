@@ -59,6 +59,17 @@ namespace MonkLib.Neat
 
         public void InitializePopulation()
         {
+            int numConnections = 0;
+            int averageConnections = 0;
+            int maxConnections = this.metrics.InputCount * this.metrics.OutputCount;
+            
+            for(int i = 1; i <= maxConnections; i++)
+            {
+                averageConnections += i;
+            }
+
+            averageConnections /= this.metrics.InputCount + this.metrics.OutputCount;
+
             for (int i = 0; i < this.metrics.InitialSize; i++)
             {
                 Genome genome = new Genome();
@@ -69,8 +80,20 @@ namespace MonkLib.Neat
                 genome.Add(inputs);
                 genome.Add(outputs);
 
-                int numConnections = 0;
                 double chance = rand.NextDouble();
+
+                if(chance < this.connectionDistributionWeights.BelowAverage)
+                {
+                    numConnections = rand.Next(1, averageConnections);
+                }
+                else if(chance < this.connectionDistributionWeights.BelowAverage + this.connectionDistributionWeights.Average)
+                {
+                    numConnections = averageConnections;
+                }
+                else
+                {
+                    numConnections = rand.Next(averageConnections + 1, maxConnections);
+                }
 
                 genome.Add(this.GenerateConnections(numConnections, inputs, outputs));
                 this.Population.Add(genome);
