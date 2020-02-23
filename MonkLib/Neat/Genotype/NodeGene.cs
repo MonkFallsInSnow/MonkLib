@@ -5,7 +5,7 @@ namespace MonkLib.Neat
     public class NodeGene
     {
         #region Properties
-        public uint Innovation         { get; private set; }
+        public int Innovation         { get; private set; }
         public Constants.NodeType Type { get; private set; }
         public double Value { get; set; }
         #endregion
@@ -13,7 +13,7 @@ namespace MonkLib.Neat
 
         #region Constructors
 
-        public NodeGene(uint innovation, Constants.NodeType type)
+        public NodeGene(int innovation, Constants.NodeType type)
         {
             this.Innovation = innovation;
             this.Type = type;

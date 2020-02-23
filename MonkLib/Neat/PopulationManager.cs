@@ -18,29 +18,10 @@ namespace MonkLib.Neat
         }
     }
 
-    public struct ConnectionDistributionWeights
-    {
-        public readonly double Average;
-        public readonly double BelowAverage;
-        public readonly double AboveAverage;
-
-        public ConnectionDistributionWeights(double average, double belowAverage, double aboveAverage)
-        {
-            if(average + belowAverage + aboveAverage != 1)
-            {
-                throw new ArgumentException("Parameter values must sum to 1");
-            }
-
-            this.Average = average;
-            this.BelowAverage = belowAverage;
-            this.AboveAverage = aboveAverage;
-        }
-    }
 
     public class PopulationManager : IPopulationManager
     {
         private readonly PopulationMetrics metrics;
-        private readonly ConnectionDistributionWeights connectionDistributionWeights;
 
         private static Random rand = new Random();
         private GeneArchive archive;
@@ -48,28 +29,16 @@ namespace MonkLib.Neat
         public List<Genome> Population { get; private set; }
         public Dictionary<int, Genome> Species { get; private set; }
 
-        public PopulationManager(PopulationMetrics metrics, ConnectionDistributionWeights connectionDistribution, GeneArchive archive)
+        public PopulationManager(PopulationMetrics metrics, GeneArchive archive)
         {
             this.metrics = metrics;
             this.archive = archive;
             this.Population = new List<Genome>();
             this.Species = new Dictionary<int, Genome>();
-            this.connectionDistributionWeights = connectionDistribution;
         }
 
         public void InitializePopulation()
         {
-            int numConnections = 0;
-            int averageConnections = 0;
-            int maxConnections = this.metrics.InputCount * this.metrics.OutputCount;
-            
-            for(int i = 1; i <= maxConnections; i++)
-            {
-                averageConnections += i;
-            }
-
-            averageConnections /= this.metrics.InputCount + this.metrics.OutputCount;
-
             for (int i = 0; i < this.metrics.InitialSize; i++)
             {
                 Genome genome = new Genome();
@@ -80,31 +49,19 @@ namespace MonkLib.Neat
                 genome.Add(inputs);
                 genome.Add(outputs);
 
-                double chance = rand.NextDouble();
-
-                if(chance < this.connectionDistributionWeights.BelowAverage)
-                {
-                    numConnections = rand.Next(1, averageConnections);
-                }
-                else if(chance < this.connectionDistributionWeights.BelowAverage + this.connectionDistributionWeights.Average)
-                {
-                    numConnections = averageConnections;
-                }
-                else
-                {
-                    numConnections = rand.Next(averageConnections + 1, maxConnections);
-                }
-
-                genome.Add(this.GenerateConnections(numConnections, inputs, outputs));
+                genome.Add(this.GenerateConnections(inputs, outputs));
                 this.Population.Add(genome);
+
+                InnovationGenerator.Reset();
             }
         }
+ 
 
         private List<NodeGene> GenerateNodes(int count, Constants.NodeType type)
         {
             List<NodeGene> nodes = new List<NodeGene>();
 
-            for (int i = 0; i < this.metrics.OutputCount; i++)
+            for (int i = 0; i < count; i++)
             {
                 NodeGene node = new NodeGene(InnovationGenerator.ID, type);
                 nodes.Add(node);
@@ -113,20 +70,40 @@ namespace MonkLib.Neat
             return nodes;
         }
 
-        private int GetConnectionDistribution()
-        {
 
-            return 0;
-        }
-
-        private List<ConnectionGene> GenerateConnections(int maxConnections, List<NodeGene> inputs, List<NodeGene> outputs)
+        private List<ConnectionGene> GenerateConnections(List<NodeGene> inputs, List<NodeGene> outputs)
         {
             List<ConnectionGene> connections = new List<ConnectionGene>();
+            
+            int maxConnectionsPerNode = this.metrics.OutputCount;
+            int maxNetworkConnections = this.metrics.InputCount * this.metrics.OutputCount;
+            int currentConnectionCount = 0;
 
-            int maxConnectionsPerNode = outputs.Count;
+            while(currentConnectionCount != maxNetworkConnections && inputs.Count > 0)
+            {
+                int inputIndex = rand.Next(0, inputs.Count);
+                int outputIndex = rand.Next(0, outputs.Count);
+                int numConnections = rand.Next(1, Math.Min(maxConnectionsPerNode, maxNetworkConnections) + 1);
 
-            while(connections.Count < maxConnections)
-            { }
+                for(int i = 0; i < numConnections; i++)
+                {
+                    if(outputIndex > outputs.Count - 1)
+                    {
+                        outputIndex = 0;
+                    }
+
+                    connections.Add(
+                        new ConnectionGene(
+                            InnovationGenerator.ID,
+                            inputs[inputIndex],
+                            outputs[outputIndex++]
+                        )
+                    );
+                }
+
+                inputs.RemoveAt(inputIndex);
+                currentConnectionCount++;
+            }
 
             //remember to archive connections
             foreach (ConnectionGene connection in connections)
@@ -135,6 +112,18 @@ namespace MonkLib.Neat
             }
 
             return connections;
+        }
+
+        public override string ToString()
+        {
+            string output = "";
+
+            for(int i = 0; i < this.Population.Count; i++)
+            {
+                output += string.Format("Genome: {0}\n{1}\n\n", i+1, this.Population[i].ToString());
+            }
+
+            return output;
         }
     }
 }
