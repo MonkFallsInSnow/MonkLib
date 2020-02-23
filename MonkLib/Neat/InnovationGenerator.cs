@@ -6,16 +6,11 @@ namespace MonkLib.Neat
 {
     public static class InnovationGenerator
     {
-        private static uint id = 0;
+        private static int id = 0;
 
-        public static uint ID { get => ++id; }
+        public static int ID { get => ++id; }
 
-        public static void Reset()
-        {
-            id = 0;
-        }
-
-        public static void Reset(uint start)
+        public static void Reset(int start = 0)
         {
             id = start;
         }

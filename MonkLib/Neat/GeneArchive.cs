@@ -18,10 +18,10 @@ namespace MonkLib.Neat
 
     public struct RecordIndex
     {
-        public readonly uint inputID;
-        public readonly uint outputID;
+        public readonly int inputID;
+        public readonly int outputID;
 
-        public RecordIndex(uint inputID, uint outputID)
+        public RecordIndex(int inputID, int outputID)
         {
             this.inputID = inputID;
             this.outputID = outputID;
