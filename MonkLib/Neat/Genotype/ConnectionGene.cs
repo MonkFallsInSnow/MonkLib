@@ -6,7 +6,7 @@ namespace MonkLib.Neat
     {
         #region Properties
 
-        public uint Innovation { get; private set; }
+        public int Innovation { get; private set; }
         public NodeGene Input { get; private set; }
         public NodeGene Output { get; private set; }
         public double Weight { get; set; }
@@ -17,7 +17,7 @@ namespace MonkLib.Neat
 
         #region Constructors
 
-        public ConnectionGene(uint innovation, NodeGene input, NodeGene output, double weight = 1, bool enabled = true)
+        public ConnectionGene(int innovation, NodeGene input, NodeGene output, double weight = 1, bool enabled = true)
         {
             this.Innovation = innovation;
             this.Input = input;

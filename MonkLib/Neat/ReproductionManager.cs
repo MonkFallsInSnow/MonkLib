@@ -29,7 +29,7 @@ namespace MonkLib.Neat
         {
             List<ConnectionGene> connections = new List<ConnectionGene>();
 
-            foreach (KeyValuePair<uint, ConnectionGene> keyValuePair in genome1.Connections)
+            foreach (KeyValuePair<int, ConnectionGene> keyValuePair in genome1.Connections)
             {
                 if (genome2.Connections.ContainsKey(keyValuePair.Key))
                 {
@@ -152,7 +152,7 @@ namespace MonkLib.Neat
         {
             List<ConnectionGene> disjointGenes = new List<ConnectionGene>();
 
-            uint earliestInnovation = Math.Min(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
+            int earliestInnovation = Math.Min(genome1.Connections.Keys.Max<int>(), genome2.Connections.Keys.Max<int>());
             
             genome1.Connections
                 .Except(genome2.Connections)
@@ -173,8 +173,8 @@ namespace MonkLib.Neat
         {
             List<ConnectionGene> excessGenes = new List<ConnectionGene>();
 
-            uint earliestInnovation = Math.Min(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
-            uint latestInnovation = Math.Max(genome1.Connections.Keys.Max<uint>(), genome2.Connections.Keys.Max<uint>());
+            int earliestInnovation = Math.Min(genome1.Connections.Keys.Max<int>(), genome2.Connections.Keys.Max<int>());
+            int latestInnovation = Math.Max(genome1.Connections.Keys.Max<int>(), genome2.Connections.Keys.Max<int>());
 
             genome1.Connections
                 .Except(genome2.Connections)

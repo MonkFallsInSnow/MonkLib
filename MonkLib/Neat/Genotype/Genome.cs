@@ -6,8 +6,8 @@ namespace MonkLib.Neat
     {
         #region Properties
 
-        public SortedDictionary<uint, NodeGene> Nodes { get; set; }
-        public SortedDictionary<uint, ConnectionGene> Connections { get; set; }
+        public SortedDictionary<int, NodeGene> Nodes { get; set; }
+        public SortedDictionary<int, ConnectionGene> Connections { get; set; }
         public double Fitness { get; set; }
         #endregion
 
@@ -16,8 +16,8 @@ namespace MonkLib.Neat
 
         public Genome()
         {
-            this.Nodes = new SortedDictionary<uint, NodeGene>();
-            this.Connections = new SortedDictionary<uint, ConnectionGene>();
+            this.Nodes = new SortedDictionary<int, NodeGene>();
+            this.Connections = new SortedDictionary<int, ConnectionGene>();
         }
 
         #endregion
@@ -61,7 +61,7 @@ namespace MonkLib.Neat
 
         public override string ToString()
         {
-            uint count = 0;
+            int count = 0;
             string output = string.Format("Fitness: {0}\n",this.Fitness);
 
             foreach (ConnectionGene connection in this.Connections.Values)
